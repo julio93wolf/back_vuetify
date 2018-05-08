@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Product;
 use Illuminate\Http\Request;
+use Auth;
 
 class ProductsController extends Controller
 {
@@ -35,7 +36,7 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        $product = Product::create($request->all());
+        $product = Product::create($request->all() + ['user_id' => Auth::id()]);
         return $request->all();
     }
 
@@ -47,7 +48,12 @@ class ProductsController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        if ($product){
+            return $product;
+        }else{
+            return response()->json(['error' => 'Resource not found'], 404);
+        }
+        
     }
 
     /**
@@ -70,7 +76,8 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $product->update($request->all());
+        return $product;
     }
 
     /**
@@ -81,6 +88,7 @@ class ProductsController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return $product;
     }
 }
