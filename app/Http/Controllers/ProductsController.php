@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Product;
 use Illuminate\Http\Request;
 use Auth;
+use App\Http\Requests\ProductStoreRequest;
+use App\Http\Requests\ProductUpdateRequest;
 
 class ProductsController extends Controller
 {
@@ -34,20 +36,21 @@ class ProductsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProductStoreRequest $request)
     {
-        $exploded = explode(',',$request->image);
-        $decoded = base64_decode($exploded[1]);
+        if ($request->image) {
+            $exploded = explode(',',$request->image);
+            $decoded = base64_decode($exploded[1]);
 
-        if (str_contains($exploded[0],'jpeg'))
-            $extension = 'jpg';
-        else
-            $extension = 'png';
+            if (str_contains($exploded[0],'jpeg'))
+                $extension = 'jpg';
+            else
+                $extension = 'png';
 
-        $fileName = str_random().'.'.$extension;
-        $path = public_path().'/'.$fileName;
-        file_put_contents($path, $decoded);
-
+            $fileName = str_random().'.'.$extension;
+            $path = public_path().'/'.$fileName;
+            file_put_contents($path, $decoded);
+        }
         $product = Product::create($request->except('image') + ['user_id' => Auth::id()]);
         return $request->all();
     }
@@ -86,7 +89,7 @@ class ProductsController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(ProductUpdateRequest $request, Product $product)
     {
         $product->update($request->all());
         return $product;
